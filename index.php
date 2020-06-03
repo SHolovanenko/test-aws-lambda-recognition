@@ -1,32 +1,43 @@
 <?php declare(strict_types=1);
 
 require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/configuration.php';
 
-use Aws\S3\S3Client;  
-use Aws\Exception\AwsException;
-use Aws\S3\Exception\S3Exception;
+use Aws\Rekognition\RekognitionClient;
 
 return function ($keyname) {
-    $bucket = 'images2recognition';
-
-    $credentials = [
-        'key' => AWS_KEY,
-        'secret' => AWS_SECRET
-    ];
-
-    $s3Client = new S3Client([
+    $config = [
         'version' => 'latest',
         'region'  => AWS_REGION,
-        'credentials' => $credentials
-    ]);
+        'credentials' => [
+            'key' => AWS_KEY,
+            'secret' => AWS_SECRET
+        ]
+    ];
+
+    $rClient = new RekognitionClient($config);
 
     try {
-        $result = $s3Client->getObject([
-            'Bucket' => $bucket,
-            'Key'    => $keyname
+        $result = $rClient->detectLabels([
+            'Image' => [
+                'S3Object' => [
+                    'Bucket' => AWS_BUCKET,
+                    'Name' => $keyname
+                ],
+            ],
+            'MaxLabels' => 10,
+            'MinConfidence' => 75
         ]);
 
-        return $result['ContentType'];
+        $result = $result->toArray();
+        
+        foreach ($result['Labels'] as $lable) {
+            if ($lable['Name'] == 'Dog') {
+                return true;
+            }
+        }
+
+        return false;
 
     } catch (Exception $e) {
         return $e->getMessage() . PHP_EOL;
