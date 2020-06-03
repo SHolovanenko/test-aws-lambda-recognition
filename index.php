@@ -3,6 +3,7 @@
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/configuration.php';
 require_once __DIR__ . '/awsSes.php';
+require_once __DIR__ . '/awsDynamoDB.php';
 
 use Aws\Rekognition\RekognitionClient;
 use Aws\S3\S3Client;
@@ -37,6 +38,7 @@ return function ($keyname) {
         
         foreach ($result['Labels'] as $lable) {
             if ($lable['Name'] == 'Dog') {
+                $dbResponse = saveDogImageToDynamoDb($keyname, $result['Labels']);
                 return true;
             }
         }
@@ -49,7 +51,8 @@ return function ($keyname) {
         $image = $image->toArray();
         $image = $image["@metadata"]["effectiveUri"];
 
-        return sendNotADogEmail('serhii.holovanenko@gmail.com', $image);
+        $msgId = sendNotADogEmail('serhii.holovanenko@gmail.com', $image);
+        return false;
 
     } catch (Exception $e) {
         return $e->getMessage() . PHP_EOL;
