@@ -1,9 +1,11 @@
 <?php declare(strict_types=1);
 
-require __DIR__ . '/vendor/autoload.php';
-require __DIR__ . '/configuration.php';
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/configuration.php';
+require_once __DIR__ . '/awsSes.php';
 
 use Aws\Rekognition\RekognitionClient;
+use Aws\S3\S3Client;
 
 return function ($keyname) {
     $config = [
@@ -16,6 +18,8 @@ return function ($keyname) {
     ];
 
     $rClient = new RekognitionClient($config);
+
+    $s3Client = new S3Client($config);
 
     try {
         $result = $rClient->detectLabels([
@@ -37,7 +41,15 @@ return function ($keyname) {
             }
         }
 
-        return false;
+        $image = $s3Client->getObject([
+            'Bucket' => AWS_BUCKET,
+            'Key'    => $keyname
+        ]);
+
+        $image = $image->toArray();
+        $image = $image["@metadata"]["effectiveUri"];
+
+        return sendNotADogEmail('serhii.holovanenko@gmail.com', $image);
 
     } catch (Exception $e) {
         return $e->getMessage() . PHP_EOL;
