@@ -9,6 +9,8 @@ use Aws\Rekognition\RekognitionClient;
 use Aws\S3\S3Client;
 
 return function ($keyname) {
+    $keyname = is_array($keyname) ? $keyname['Input'] : $keyname;
+    
     $config = [
         'version' => 'latest',
         'region'  => AWS_REGION,

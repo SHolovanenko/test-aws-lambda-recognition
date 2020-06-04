@@ -9,8 +9,8 @@ provider:
     runtime: provided
 
 plugins:
-    - ./vendor/bref/bref
-
+  - ./vendor/bref/bref
+  - serverless-step-functions
 functions:
     function:
         handler: index.php

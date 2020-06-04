@@ -1,0 +1,17 @@
+{
+    "Comment": "aws recognition",
+    "StartAt": "Invoke Lambda function",
+    "States": {
+      "Invoke Lambda function": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::lambda:invoke",
+        "Parameters": {
+          "FunctionName": "arn:aws:lambda:eu-central-1:269110149296:function:app-dev-function:$LATEST",
+          "Payload": {
+            "Input.$": "$.keyname"
+          }
+        },
+        "End": true
+      }
+    }
+  }
