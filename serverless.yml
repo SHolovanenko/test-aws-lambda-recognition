@@ -12,8 +12,26 @@ plugins:
   - ./vendor/bref/bref
   - serverless-step-functions
 functions:
-    function:
-        handler: index.php
+    recogniseDog:
+        handler: recogniseDog.php
+        description: ''
+        layers:
+            - ${bref:layer.php-73}
+
+    storeImgDataToDB:
+        handler: storeImgDataToDB.php
+        description: ''
+        layers:
+            - ${bref:layer.php-73}
+    
+    sendEmail:
+        handler: sendEmail.php
+        description: ''
+        layers:
+            - ${bref:layer.php-73}
+
+    prepareResult:
+        handler: prepareResult.php
         description: ''
         layers:
             - ${bref:layer.php-73}

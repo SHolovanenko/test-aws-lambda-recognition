@@ -4,7 +4,12 @@ require_once __DIR__ . '/configuration.php';
 
 use Aws\Ses\SesClient;
 
-function sendNotADogEmail($recipient_email, $image) {
+return function ($data) {
+    $data = isset($data['Input']['Payload']) ? $data['Input']['Payload'] : $data;
+
+    $recipient_email = $data['email'];
+    $image = $data['image_url'];
+
     $SesClient = new SesClient([
         'version' => 'latest',
         'region'  => AWS_REGION,
@@ -45,7 +50,8 @@ function sendNotADogEmail($recipient_email, $image) {
             ],
         ]
     ]);
-    $messageId = $result['MessageId'];
 
-    return $messageId;
-}
+    $data['messageId'] = $result['MessageId'];
+    
+    return $data;
+};

@@ -7,7 +7,9 @@ date_default_timezone_set('UTC');
 
 use Aws\DynamoDb\Marshaler;
 
-function saveDogImageToDynamoDb($image, $lables) {
+return function ($data) {
+    $data = isset($data['Input']['Payload']) ? $data['Input']['Payload'] : $data;
+
     $sdk = new Aws\Sdk([
         'version' => 'latest',
         'region'  => AWS_REGION,
@@ -23,8 +25,8 @@ function saveDogImageToDynamoDb($image, $lables) {
     $tableName = 'recognition_results';
 
     $json = json_encode([
-        'image' => $image,
-        'lables' => $lables
+        'image' => $data['image'],
+        'lables' => $data['lables']
     ]);
 
     $params = [
@@ -32,7 +34,7 @@ function saveDogImageToDynamoDb($image, $lables) {
         'Item' => $marshaler->marshalJson($json)
     ];
 
-    $result = $dynamodb->putItem($params);
+    $dynamodb->putItem($params);
 
-    return $result;
-}
+    return $data;
+};
